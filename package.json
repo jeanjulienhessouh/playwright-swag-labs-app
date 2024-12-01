@@ -4,7 +4,6 @@
   "version": "3.0.0",
   "private": true,
   "dependencies": {
-    "@backtrace-labs/react": "^0.0.5",
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
     "@fortawesome/react-fontawesome": "^0.1.14",
@@ -29,7 +28,6 @@
     "@babel/plugin-proposal-private-methods": "^7.13.0",
     "@babel/preset-env": "^7.13.12",
     "@babel/register": "^7.13.14",
-    "@backtrace-labs/javascript-cli": "^0.1.2",
     "@playwright/test": "^1.49.0",
     "@storybook/addon-actions": "^6.2.5",
     "@storybook/addon-essentials": "^6.2.5",
@@ -59,8 +57,7 @@
     "test.storybook.mobile": "screener-storybook --conf test/visual/storybook/mobile.config.js",
     "storybook": "start-storybook -p 6006 -s public",
     "build.storybook": "build-storybook -s public",
-    "postbuild.storybook": "cd scripts && ./postbuild.sh",
-    "backtrace.sourcemaps": "backtrace-js run"
+    "postbuild.storybook": "cd scripts && ./postbuild.sh"
   },
   "browserslist": {
     "production": [
