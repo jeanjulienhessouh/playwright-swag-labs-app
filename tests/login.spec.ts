@@ -1,34 +1,56 @@
 import { test, expect } from "@playwright/test";
 
-test("navigates to the login page", async ({ page }) => {
-  // Aller à la page d'acceuil de l'application
-  await page.goto("/");
+test.describe("(login)", () => {
+  test.beforeEach(async ({ page }) => {
+    // Aller à la page d'acceuil de l'application
+    await page.goto("/");
+    // Vérifier que le titre de la page est "Swag Labs"
+    await expect(page).toHaveTitle(/Swag Labs/);
+  });
 
-  // Vérifier que le titre de la page est "Swag Labs"
-  await expect(page).toHaveTitle(/Swag Labs/);
-});
+  test("logs in and visits the store", async ({ page }) => {
+    // Remplir le champ username
+    await page.getByTestId("username").fill("standard_user");
 
-test("logs in and visits the store", async ({ page }) => {
-  // Aller à la page d'acceuil de l'application
-  await page.goto("/");
+    // Rempir le champ password
+    await page.getByTestId("password").fill("secret_sauce");
 
-  // Vérifier que le titre de la page est "Swag Labs"
-  await expect(page).toHaveTitle(/Swag Labs/);
+    // Cliquer sur le bouton login pour se connecter
+    await page.getByTestId("login-button").click();
 
-  // Remplir le champ username
-  await page.getByTestId("username").fill("standard_user");
+    // Vérifier que l'utilisateur est connecté et redirigé vers la page des produits
+    await expect(page).toHaveURL(/inventory.html/);
 
-  // Rempir le champ password
-  await page.getByTestId("password").fill("secret_sauce");
+    // Vérifier que la page produit est visible et contient au moins deux produits
+    await expect(page.getByTestId("title")).toHaveText("Products");
+    await expect(page.getByTestId("inventory-list")).toBeVisible();
+    await expect(page.getByTestId("inventory-item")).toHaveCount(6);
+  }),
+    test("shows a login error for locked out user", async ({ page }) => {
+      await 5000;
+      // Remplir le champ username
+      await page.getByPlaceholder("username").fill("locked_out_user");
 
-  // Cliquer sur le bouton login pour se connecter
-  await page.getByTestId("login-button").click();
+      // Rempir le champ password
+      const passwordField = await page.getByTestId("password");
+      passwordField.fill("secret_sauce");
 
-  // Vérifier que l'utilisateur est connecté et redirigé vers la page des produits
-  await expect(page).toHaveURL(/inventory.html/);
+      // Cliquer sur le bouton login pour se connecter
+      await page.getByTestId("login-button").click();
 
-  // Vérifier que la page produit est visible et contient au moins deux produits
-  await expect(page.getByTestId("title")).toHaveText("Products");
-  await expect(page.getByTestId("inventory-list")).toBeVisible();
-  await expect(page.getByTestId("inventory-item")).toHaveCount(6);
+      await expect(page.getByTestId("username")).toHaveClass(
+        "input_error form_input error"
+      );
+      await expect(passwordField).toHaveClass("input_error form_input error");
+      await expect(page).toHaveURL("/");
+
+      const errorMessage = await page.getByTestId("error").filter({
+        hasText: `Epic sadface: Sorry, 
+        this user has been locked out.`,
+      });
+      await expect(errorMessage).toBeVisible();
+
+      await page.getByTestId("error-button").click();
+      await expect(errorMessage).not.toBeVisible();
+    });
 });
